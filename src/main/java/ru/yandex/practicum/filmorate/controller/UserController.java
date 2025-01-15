@@ -53,5 +53,4 @@ public class UserController {
     private long getNextId() {
         return ++nextId;
     }
-    
 }
