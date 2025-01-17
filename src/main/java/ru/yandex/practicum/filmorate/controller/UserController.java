@@ -55,7 +55,7 @@ public class UserController {
             log.warn("У пользователя отсутствует имя, вместо имени будет использоваться логин: " + user.getLogin());
             user.setName(user.getLogin());
         }
-        if (user.getBirthday() == null || user.getBirthday().atStartOfDay(ZoneId.of("UTC")).toInstant().isAfter(Instant.now())) {
+        if (user.getBirthday().atStartOfDay(ZoneId.of("UTC")).toInstant().isAfter(Instant.now())) {
             String mes = "Дата рождения не может быть в будущем";
             log.error(mes);
             throw new ValidationException(mes);

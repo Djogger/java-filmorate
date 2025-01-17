@@ -50,12 +50,12 @@ public class FilmController {
     }
 
     private void validation(Film film) {
-        if (film.getDescription() == null || film.getDescription().length() > 200) {
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
             String mes = "Длина описания не может превышать 200 символов";
             log.error(mes);
             throw new ValidationException(mes);
         }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             String mes = "Дата релиза фильма не может быть раньше 28 декабря 1895 года";
             log.error(mes);
             throw new ValidationException(mes);
