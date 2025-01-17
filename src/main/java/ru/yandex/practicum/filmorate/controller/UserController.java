@@ -24,20 +24,13 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getAllUsers() {
+        log.info("Вывод всех пользователей");
         return users.values();
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("У пользователя отсутствует имя, вместо имени будет использоваться логин: " + user.getLogin());
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday() == null || user.getBirthday().atStartOfDay(ZoneId.of("UTC")).toInstant().isAfter(Instant.now())) {
-            String mes = "Дата рождения не может быть в будущем";
-            log.error(mes);
-            throw new ValidationException(mes);
-        }
+        validation(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Юзер с id: " + user.getId() + " успешно добавлен");
@@ -51,9 +44,22 @@ public class UserController {
             log.error(mes);
             throw new NotFoundException(mes);
         }
+        validation(newUser);
         users.put(newUser.getId(), newUser);
         log.info("Юзер с id: " + newUser.getId() + " успешно изменён");
         return newUser;
+    }
+
+    private void validation(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("У пользователя отсутствует имя, вместо имени будет использоваться логин: " + user.getLogin());
+            user.setName(user.getLogin());
+        }
+        if (user.getBirthday() == null || user.getBirthday().atStartOfDay(ZoneId.of("UTC")).toInstant().isAfter(Instant.now())) {
+            String mes = "Дата рождения не может быть в будущем";
+            log.error(mes);
+            throw new ValidationException(mes);
+        }
     }
 
     private long getNextId() {

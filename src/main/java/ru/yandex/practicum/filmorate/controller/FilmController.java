@@ -23,29 +23,13 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getAllFilms() {
+        log.info("Вывод всех фильмов");
         return films.values();
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-//        if (film.getName() == null || film.getName().isBlank()) {
-//            throw new ValidationException("Название не может быть пустым");
-//        }
-        if (film.getDescription().length() > 200) {
-            String mes = "Длина описания не может превышать 200 символов";
-            log.error(mes);
-            throw new ValidationException(mes);
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            String mes = "Дата релиза фильма не может быть раньше 28 декабря 1895 года";
-            log.error(mes);
-            throw new ValidationException(mes);
-        }
-        if (film.getDuration() <= 0) {
-            String mes = "Продолжительность фильма не может быть равна нулю или быть отрицательной";
-            log.error(mes);
-            throw new ValidationException(mes);
-        }
+        validation(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
         log.info("Фильм с id: " + film.getId() + " успешно добавлен");
@@ -59,24 +43,28 @@ public class FilmController {
             log.error(mes);
             throw new NotFoundException(mes);
         }
-        if (newFilm.getDescription().length() > 200) {
+        validation(newFilm);
+        films.put(newFilm.getId(), newFilm);
+        log.info("Фильм с id: " + newFilm.getId() + " успешно изменён");
+        return newFilm;
+    }
+
+    private void validation(Film film) {
+        if (film.getDescription() == null || film.getDescription().length() > 200) {
             String mes = "Длина описания не может превышать 200 символов";
             log.error(mes);
             throw new ValidationException(mes);
         }
-        if (newFilm.getReleaseDate() == null || newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             String mes = "Дата релиза фильма не может быть раньше 28 декабря 1895 года";
             log.error(mes);
             throw new ValidationException(mes);
         }
-        if (newFilm.getDuration() <= 0) {
+        if (film.getDuration() <= 0) {
             String mes = "Продолжительность фильма не может быть равна нулю или быть отрицательной";
             log.error(mes);
             throw new ValidationException(mes);
         }
-        films.put(newFilm.getId(), newFilm);
-        log.info("Фильм с id: " + newFilm.getId() + " успешно изменён");
-        return newFilm;
     }
 
     private long getNextId() {

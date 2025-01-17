@@ -24,6 +24,7 @@ public class User {
 
     String name;
 
+    @NotNull(message = "Поле дня рождения не может быть пустым")
     LocalDate birthday;
 
 }

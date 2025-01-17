@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -22,6 +23,7 @@ public class Film {
 
     String description;
 
+    @NotNull(message = "Дата релиза не может быть пустой")
     LocalDate releaseDate;
 
     int duration;
