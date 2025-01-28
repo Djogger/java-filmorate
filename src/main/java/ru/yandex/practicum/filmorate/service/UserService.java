@@ -33,6 +33,10 @@ public class UserService {
     }
 
     public Collection<Long> addFriend(Long userId, Long friendId) {
+        if (userId.equals(friendId)) {
+            throw new IllegalArgumentException("Невозможно добавить самого себя в друзья");
+        }
+
         log.info("Пользователи с id = " + userId + " и id = " + friendId + " теперь друзья");
         validation(userId);
         validation(friendId);

@@ -49,17 +49,18 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Map<String, Long>> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
-        Collection<Long> response = userService.addFriend(userId, friendId);
+    public List<Map<String, Long>> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        Collection<Long> friends = userService.addFriend(userId, friendId);
 
-        Collection<Map<String, Long>> response2 = new ArrayList<>();
-        for (Long id : response) {
+        List<Map<String, Long>> response = new ArrayList<>();
+
+        for (Long id : friends) {
             Map<String, Long> friendMap = new HashMap<>();
             friendMap.put("id", id);
-            response2.add(friendMap);
+            response.add(friendMap);
         }
 
-        return response2;
+        return response;
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
