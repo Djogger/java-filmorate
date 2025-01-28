@@ -18,24 +18,18 @@ public class UserService {
     public Collection<Map<String, Long>> findFriends(Long userId) {
         validation(userId);
 
-        Collection<Map<String, Long>> response = new ArrayList<>();
-        for (Long id : inMemoryUserStorage.getUsers().get(userId).getFriends()) {
-            Map<String, Long> map = new HashMap<>();
-            map.put("id", id);
-            response.add(map);
-        }
-
-        return response;
+        return wrapperResponse(inMemoryUserStorage.getUsers().get(userId).getFriends());
     }
 
-    public Collection<Long> findCommonFriends(Long userId, Long friendId) {
+    public Collection<Map<String, Long>> findCommonFriends(Long userId, Long friendId) {
         log.info("Находим общих друзей у пользователей с id = " + userId + " и id = " + friendId);
         validation(userId);
         validation(friendId);
 
         Set<Long> commonFriends = new HashSet<>(inMemoryUserStorage.getUsers().get(userId).getFriends());
         commonFriends.retainAll(inMemoryUserStorage.getUsers().get(friendId).getFriends());
-        return commonFriends;
+
+        return wrapperResponse(commonFriends);
     }
 
     public Collection<Map<String, Long>> addFriend(Long userId, Long friendId) {
@@ -55,14 +49,7 @@ public class UserService {
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
 
-        Collection<Map<String, Long>> response = new ArrayList<>();
-        for (Long id : user.getFriends()) {
-            Map<String, Long> map = new HashMap<>();
-            map.put("id", id);
-            response.add(map);
-        }
-
-        return response;
+        return wrapperResponse(user.getFriends());
     }
 
     public User deleteFriend(Long userId, Long friendId) {
@@ -81,10 +68,21 @@ public class UserService {
         return user;
     }
 
-    public void validation(Long id) {
+    private void validation(Long id) {
         if (inMemoryUserStorage.getUsers().get(id) == null) {
             throw new NotFoundException("Пользователя с таким id не найдено");
         }
+    }
+
+    private Collection<Map<String, Long>> wrapperResponse(Set<Long> friends) {
+        Collection<Map<String, Long>> response = new ArrayList<>();
+        for (Long id : friends) {
+            Map<String, Long> map = new HashMap<>();
+            map.put("id", id);
+            response.add(map);
+        }
+
+        return response;
     }
 
 }

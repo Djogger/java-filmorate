@@ -50,7 +50,7 @@ public class FilmService {
         return film;
     }
 
-    public void validation(Long filmId, Long userId) {
+    private void validation(Long filmId, Long userId) {
         if (inMemoryFilmStorage.getFilms().get(filmId) == null || inMemoryUserStorage.getUsers().get(userId) == null) {
             throw new NotFoundException("Указаны несуществующие id");
         }
