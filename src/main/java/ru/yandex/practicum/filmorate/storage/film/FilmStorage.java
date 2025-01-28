@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface FilmStorage {
-    public Collection<Film> getAllFilms();
+    Collection<Film> getAllFilms();
 
-    public Film addFilm(Film film);
+    Film addFilm(Film film);
 
 
-    public Film updateFilm(Film newFilm);
+    Film updateFilm(Film newFilm);
 
-    public Map<Long, Film> getFilms();
+    Map<Long, Film> getFilms();
 
 }
