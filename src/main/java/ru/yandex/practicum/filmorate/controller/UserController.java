@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -54,7 +53,6 @@ public class UserController {
         Collection<Long> response = userService.addFriend(userId, friendId);
 
         Collection<Map<String, Long>> response2 = new ArrayList<>();
-        
         for (Long id : response) {
             Map<String, Long> friendMap = new HashMap<>();
             friendMap.put("id", id);
