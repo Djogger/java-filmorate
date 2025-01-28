@@ -7,9 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -17,9 +15,17 @@ import java.util.Set;
 public class UserService {
     private final UserStorage inMemoryUserStorage;
 
-    public Collection<Long> findFriends(Long userId) {
+    public Collection<Map<String, Long>> findFriends(Long userId) {
         validation(userId);
-        return inMemoryUserStorage.getUsers().get(userId).getFriends();
+
+        Collection<Map<String, Long>> response = new ArrayList<>();
+        for (Long id : inMemoryUserStorage.getUsers().get(userId).getFriends()) {
+            Map<String, Long> map = new HashMap<>();
+            map.put("id", id);
+            response.add(map);
+        }
+
+        return response;
     }
 
     public Collection<Long> findCommonFriends(Long userId, Long friendId) {
@@ -32,9 +38,9 @@ public class UserService {
         return commonFriends;
     }
 
-    public Collection<Long> addFriend(Long userId, Long friendId) {
+    public Collection<Map<String, Long>> addFriend(Long userId, Long friendId) {
         if (userId.equals(friendId)) {
-            throw new IllegalArgumentException("Невозможно добавить самого себя в друзья");
+            throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
         }
 
         log.info("Пользователи с id = " + userId + " и id = " + friendId + " теперь друзья");
@@ -49,7 +55,14 @@ public class UserService {
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
 
-        return user.getFriends();
+        Collection<Map<String, Long>> response = new ArrayList<>();
+        for (Long id : user.getFriends()) {
+            Map<String, Long> map = new HashMap<>();
+            map.put("id", id);
+            response.add(map);
+        }
+
+        return response;
     }
 
     public User deleteFriend(Long userId, Long friendId) {

@@ -25,7 +25,7 @@ public class UserController {
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Long> getFriends(@PathVariable Long userId) {
+    public Collection<Map<String, Long>> getFriends(@PathVariable Long userId) {
         return userService.findFriends(userId);
     }
 
@@ -49,18 +49,8 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Map<String, Long>> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
-        Collection<Long> friends = userService.addFriend(userId, friendId);
-
-        List<Map<String, Long>> response = new ArrayList<>();
-
-        for (Long id : friends) {
-            Map<String, Long> friendMap = new HashMap<>();
-            friendMap.put("id", id);
-            response.add(friendMap);
-        }
-
-        return response;
+    public Collection<Map<String, Long>> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        return userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
