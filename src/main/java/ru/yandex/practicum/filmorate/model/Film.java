@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,6 +32,9 @@ public class Film {
     Set<Long> likes;
 
     public int getLikesCount() {
+        if (likes == null) {
+            likes = new HashSet<>();
+        }
         return likes.size();
     }
 

@@ -50,6 +50,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private void validation(Film film) {
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
+        }
         if (film.getDescription() != null && film.getDescription().length() > 200) {
             String mes = "Длина описания не может превышать 200 символов";
             log.error(mes);
@@ -59,9 +62,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             String mes = "Дата релиза фильма не может быть раньше 28 декабря 1895 года";
             log.error(mes);
             throw new ValidationException(mes);
-        }
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
         }
         if (film.getDuration() <= 0) {
             String mes = "Продолжительность фильма не может быть равна нулю или быть отрицательной";

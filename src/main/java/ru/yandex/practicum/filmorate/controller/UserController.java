@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public User addUser(@Valid @RequestBody User user) {
         return inMemoryUserStorage.addUser(user);
     }
