@@ -14,4 +14,6 @@ public interface UserStorage {
 
     Map<Long, User> getUsers();
 
+    User getUserById(Long userId);
+
 }

@@ -65,6 +65,16 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
+    public User getUserById(Long userId) {
+        User user = users.get(userId);
+
+        if (user == null) {
+            throw new NotFoundException("Пользователя с id = " + userId + " не существует");
+        }
+
+        return user;
+    }
+
     private long getNextId() {
         return ++nextId;
     }

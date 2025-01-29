@@ -47,8 +47,8 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Map<String, Long>> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
-        return userService.addFriend(userId, friendId);
+    public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")

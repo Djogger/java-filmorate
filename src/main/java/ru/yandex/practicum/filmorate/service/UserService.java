@@ -36,7 +36,7 @@ public class UserService {
         return inMemoryUserStorage.addUser(user);
     }
 
-    public Collection<Map<String, Long>> addFriend(Long userId, Long friendId) {
+    public void addFriend(Long userId, Long friendId) {
         if (userId.equals(friendId)) {
             throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
         }
@@ -51,8 +51,6 @@ public class UserService {
 
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
-
-        return wrapperResponse(user.getFriends());
     }
 
     public User updateUser(User newUser) {
@@ -75,7 +73,7 @@ public class UserService {
     }
 
     private User getUserById(Long userId) {
-        User user = inMemoryUserStorage.getUsers().get(userId);
+        User user = inMemoryUserStorage.getUserById(userId);
 
         if (user == null) {
             throw new NotFoundException("Пользователя с id = " + userId + " не найдено");
