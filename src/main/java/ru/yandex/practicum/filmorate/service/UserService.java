@@ -15,21 +15,25 @@ import java.util.*;
 public class UserService {
     private final UserStorage inMemoryUserStorage;
 
-    public Collection<Map<String, Long>> findFriends(Long userId) {
-        validation(userId);
+    public Collection<User> getAllUsers() {
+        return inMemoryUserStorage.getAllUsers();
+    }
 
-        return wrapperResponse(inMemoryUserStorage.getUsers().get(userId).getFriends());
+    public Collection<Map<String, Long>> findFriends(Long userId) {
+        return wrapperResponse(getUserById(userId).getFriends());
     }
 
     public Collection<Map<String, Long>> findCommonFriends(Long userId, Long friendId) {
         log.info("Находим общих друзей у пользователей с id = " + userId + " и id = " + friendId);
-        validation(userId);
-        validation(friendId);
 
-        Set<Long> commonFriends = new HashSet<>(inMemoryUserStorage.getUsers().get(userId).getFriends());
-        commonFriends.retainAll(inMemoryUserStorage.getUsers().get(friendId).getFriends());
+        Set<Long> commonFriends = new HashSet<>(getUserById(userId).getFriends());
+        commonFriends.retainAll(getUserById(friendId).getFriends());
 
         return wrapperResponse(commonFriends);
+    }
+
+    public User addUser(User user) {
+        return inMemoryUserStorage.addUser(user);
     }
 
     public Collection<Map<String, Long>> addFriend(Long userId, Long friendId) {
@@ -37,14 +41,13 @@ public class UserService {
             throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
         }
 
-        log.info("Пользователи с id = " + userId + " и id = " + friendId + " теперь друзья");
-        validation(userId);
-        validation(friendId);
-
-        User user = inMemoryUserStorage.getUsers().get(userId);
+        User user = getUserById(userId);
         user.getFriends().add(friendId);
-        User friend = inMemoryUserStorage.getUsers().get(friendId);
+
+        User friend = getUserById(friendId);
         friend.getFriends().add(userId);
+
+        log.info("Пользователи с id = " + userId + " и id = " + friendId + " теперь друзья");
 
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
@@ -52,15 +55,18 @@ public class UserService {
         return wrapperResponse(user.getFriends());
     }
 
-    public User deleteFriend(Long userId, Long friendId) {
-        log.info("Пользователи с id = " + userId + " и id = " + friendId + " больше не являются друзьями");
-        validation(userId);
-        validation(friendId);
+    public User updateUser(User newUser) {
+        return inMemoryUserStorage.updateUser(newUser);
+    }
 
-        User user = inMemoryUserStorage.getUsers().get(userId);
+    public User deleteFriend(Long userId, Long friendId) {
+        User user = getUserById(userId);
         user.getFriends().remove(friendId);
-        User friend = inMemoryUserStorage.getUsers().get(friendId);
+
+        User friend = getUserById(friendId);
         friend.getFriends().remove(userId);
+
+        log.info("Пользователи с id = " + userId + " и id = " + friendId + " больше не являются друзьями");
 
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
@@ -68,10 +74,14 @@ public class UserService {
         return user;
     }
 
-    private void validation(Long id) {
-        if (inMemoryUserStorage.getUsers().get(id) == null) {
-            throw new NotFoundException("Пользователя с таким id не найдено");
+    private User getUserById(Long userId) {
+        User user = inMemoryUserStorage.getUsers().get(userId);
+
+        if (user == null) {
+            throw new NotFoundException("Пользователя с id = " + userId + " не найдено");
         }
+
+        return user;
     }
 
     private Collection<Map<String, Long>> wrapperResponse(Set<Long> friends) {

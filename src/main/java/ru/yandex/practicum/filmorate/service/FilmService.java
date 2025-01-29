@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -18,6 +19,10 @@ public class FilmService {
     private final FilmStorage inMemoryFilmStorage;
     private final UserStorage inMemoryUserStorage;
 
+    public Collection<Film> getAllFilms() {
+        return inMemoryFilmStorage.getAllFilms();
+    }
+
     public Collection<Film> findPopularFilms(int count) {
         log.info("Возвращаем " + count + " самых популярных фильмов");
         return inMemoryFilmStorage.getFilms().values().stream()
@@ -26,34 +31,48 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public Film addLike(Long filmId, Long userId) {
-        log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
-        validation(filmId, userId);
+    public Film addFilm(Film film) {
+        return inMemoryFilmStorage.addFilm(film);
+    }
 
-        Film film = inMemoryFilmStorage.getFilms().get(filmId);
+    public Film addLike(Long filmId, Long userId) {
+        Film film = getFilmById(filmId, userId);
         film.getLikes().add(userId);
+
+        log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
 
         inMemoryFilmStorage.updateFilm(film);
 
         return film;
+    }
+
+    public Film updateFilm(Film newFilm) {
+        return inMemoryFilmStorage.updateFilm(newFilm);
     }
 
     public Film deleteLike(Long filmId, Long userId) {
-        log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
-        validation(filmId, userId);
-
-        Film film = inMemoryFilmStorage.getFilms().get(filmId);
+        Film film = getFilmById(filmId, userId);
         film.getLikes().remove(userId);
+
+        log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
 
         inMemoryFilmStorage.updateFilm(film);
 
         return film;
     }
 
-    private void validation(Long filmId, Long userId) {
-        if (inMemoryFilmStorage.getFilms().get(filmId) == null || inMemoryUserStorage.getUsers().get(userId) == null) {
-            throw new NotFoundException("Указаны несуществующие id");
+    private Film getFilmById(Long filmId, Long userId) {
+        Film film = inMemoryFilmStorage.getFilms().get(filmId);
+        User user = inMemoryUserStorage.getUsers().get(userId);
+
+        if (film == null) {
+            throw new NotFoundException("Фильма с id = " + filmId + " не существует");
         }
+        if (user == null) {
+            throw new NotFoundException("Пользователя с id = " + userId + " не существует");
+        }
+
+        return film;
     }
 
 }
