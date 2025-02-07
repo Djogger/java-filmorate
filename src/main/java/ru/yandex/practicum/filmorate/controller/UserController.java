@@ -23,13 +23,13 @@ public class UserController {
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Map<String, Long>> getFriends(@PathVariable Long userId) {
+    public Collection<User> getFriends(@PathVariable Long userId) {
         return userService.findFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Map<String, Long>> getCommonFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+    public Collection<User> getCommonFriends(@PathVariable Long userId, @PathVariable Long friendId) {
         return userService.findCommonFriends(userId, friendId);
     }
 

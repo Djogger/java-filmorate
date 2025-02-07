@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,17 +20,21 @@ public class UserService {
         return inMemoryUserStorage.getAllUsers();
     }
 
-    public Collection<Map<String, Long>> findFriends(Long userId) {
-        return wrapperResponse(getUserById(userId).getFriends());
+    public Collection<User> findFriends(Long userId) {
+        return getUserById(userId).getFriends().stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
     }
 
-    public Collection<Map<String, Long>> findCommonFriends(Long userId, Long friendId) {
+    public Collection<User> findCommonFriends(Long userId, Long friendId) {
         log.info("Находим общих друзей у пользователей с id = " + userId + " и id = " + friendId);
 
         Set<Long> commonFriends = new HashSet<>(getUserById(userId).getFriends());
         commonFriends.retainAll(getUserById(friendId).getFriends());
 
-        return wrapperResponse(commonFriends);
+        return commonFriends.stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
     }
 
     public User addUser(User user) {
@@ -80,17 +85,6 @@ public class UserService {
         }
 
         return user;
-    }
-
-    private Collection<Map<String, Long>> wrapperResponse(Set<Long> friends) {
-        Collection<Map<String, Long>> response = new ArrayList<>();
-        for (Long id : friends) {
-            Map<String, Long> map = new HashMap<>();
-            map.put("id", id);
-            response.add(map);
-        }
-
-        return response;
     }
 
 }
