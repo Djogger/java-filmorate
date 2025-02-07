@@ -4,9 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -17,8 +18,8 @@ public class Film {
 
     Long id;
 
-    @NonNull
-    @NotBlank
+    @NotNull(message = "Поле name не может быть пустым")
+    @NotBlank(message = "Поле name не может быть пустым")
     String name;
 
     String description;
@@ -27,5 +28,14 @@ public class Film {
     LocalDate releaseDate;
 
     int duration;
+
+    Set<Long> likes;
+
+    public int getLikesCount() {
+        if (likes == null) {
+            likes = new HashSet<>();
+        }
+        return likes.size();
+    }
 
 }
