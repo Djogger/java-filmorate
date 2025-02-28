@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,8 +24,8 @@ public class FilmService {
 
     public Collection<Film> findPopularFilms(int count) {
         log.info("Возвращаем " + count + " самых популярных фильмов");
-        return inMemoryFilmStorage.getFilms().values().stream()
-                .sorted(Comparator.comparing(Film::getLikesCount).reversed())
+        return inMemoryFilmStorage.getAllFilms().stream()
+                .sorted(Comparator.comparing(Film::getLikesCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -34,17 +35,24 @@ public class FilmService {
     }
 
     public Film addLike(Long filmId, Long userId) {
-        Film film = inMemoryFilmStorage.getFilmById(filmId);
+        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
 
         inMemoryUserStorage.getUserById(userId);
 
-        film.getLikes().add(userId);
+        if (film.isPresent()) {
+            Film updatedFilm = film.get();
 
-        log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
+            updatedFilm.getLikes().add(userId);
 
-        inMemoryFilmStorage.updateFilm(film);
+            log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
 
-        return film;
+            inMemoryFilmStorage.updateFilm(updatedFilm);
+
+            return updatedFilm;
+        }
+
+        throw new NotFoundException("Фильм с id: " + filmId + " не найден.");
+
     }
 
     public Film updateFilm(Film newFilm) {
@@ -52,17 +60,23 @@ public class FilmService {
     }
 
     public Film deleteLike(Long filmId, Long userId) {
-        Film film = inMemoryFilmStorage.getFilmById(filmId);
+        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
 
         inMemoryUserStorage.getUserById(userId);
 
-        film.getLikes().remove(userId);
+        if (film.isPresent()) {
+            Film updatedFilm = film.get();
+            updatedFilm.getLikes().remove(userId);
 
-        log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
+            log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
 
-        inMemoryFilmStorage.updateFilm(film);
+            inMemoryFilmStorage.updateFilm(updatedFilm);
 
-        return film;
+            return updatedFilm;
+        }
+
+        throw new NotFoundException("Фильм с id: " + filmId + " не найден.");
+
     }
 
 }

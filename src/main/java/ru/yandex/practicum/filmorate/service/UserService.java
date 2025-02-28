@@ -78,13 +78,13 @@ public class UserService {
     }
 
     private User getUserById(Long userId) {
-        User user = inMemoryUserStorage.getUserById(userId);
+        Optional<User> user = inMemoryUserStorage.getUserById(userId);
 
-        if (user == null) {
+        if (user.isEmpty()) {
             throw new NotFoundException("Пользователя с id = " + userId + " не найдено");
         }
 
-        return user;
+        return user.get();
     }
 
 }
