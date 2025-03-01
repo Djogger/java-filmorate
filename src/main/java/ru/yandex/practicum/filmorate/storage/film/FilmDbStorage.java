@@ -57,8 +57,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 """;
 
     private static final String DELETE_GENRE = """
-    DELETE FROM films_genre 
-    WHERE film_id = ?;        
+    DELETE FROM films_genre
+    WHERE film_id = ?;
 """;
     private static final String UPDATE_FILM = "UPDATE films SET title = ?, description = ?, duration = ?, " +
             "release_date = ?, ratingMPA_id = ?" +
