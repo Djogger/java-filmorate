@@ -21,9 +21,9 @@ public class GenreController {
         return genreService.getAllGenres();
     }
 
-    @GetMapping("/{genre_id}")
+    @GetMapping("/{genreId}")
     @ResponseStatus(HttpStatus.OK)
-    public Genre getMpaRating(@PathVariable int genre_id) {
-        return genreService.getGenre(genre_id);
+    public Genre getMpaRating(@PathVariable int genreId) {
+        return genreService.getGenre(genreId);
     }
 }

@@ -26,9 +26,9 @@ public class MpaDbStorage extends BaseRepository<MpaRating> implements MpaStorag
         return findMany(GET_ALL_MPA);
     }
 
-    public Optional<MpaRating> getMpaRating(int mpa_id) {
-        log.info("Вывод рейтинга MPA с id: " + mpa_id);
-        return findOne(GET_MPA_RATING, mpa_id);
+    public Optional<MpaRating> getMpaRating(int mpaId) {
+        log.info("Вывод рейтинга MPA с id: " + mpaId);
+        return findOne(GET_MPA_RATING, mpaId);
     }
 
 }

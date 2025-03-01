@@ -21,7 +21,7 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
-    @GetMapping("/{film_id}")
+    @GetMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
     public Film getFilm(@PathVariable Long filmId) {
         return filmService.getFilm(filmId);

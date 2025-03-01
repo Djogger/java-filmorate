@@ -79,14 +79,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
-    public Set<Long> loadLikes(Long film_id) {
+    public Set<Long> loadLikes(Long filmId) {
         String sql = "SELECT user_id FROM likes WHERE film_id = ?";
-        return new HashSet<>(jdbc.query(sql, new Object[]{film_id}, (rs, rowNum) -> rs.getLong("user_id")));
+        return new HashSet<>(jdbc.query(sql, new Object[]{filmId}, (rs, rowNum) -> rs.getLong("user_id")));
     }
 
-    public Set<Genre> loadGenres(Long film_id) {
+    public Set<Genre> loadGenres(Long filmId) {
         String sql = "SELECT genre_id FROM films_genre WHERE film_id = ?";
-        Set<Integer> genresId = new HashSet<>(jdbc.query(sql, new Object[]{film_id}, (rs, rowNum) -> rs.getInt("genre_id")));
+        Set<Integer> genresId = new HashSet<>(jdbc.query(sql, new Object[]{filmId}, (rs, rowNum) -> rs.getInt("genre_id")));
         return genresId.stream()
                 .map(id -> genreStorage.getGenre(id).get())
                 .collect(Collectors.toSet());
@@ -162,21 +162,21 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         return newFilm;
     }
 
-    public void addLike(Long film_id, Long user_id) {
+    public void addLike(Long filmId, Long userId) {
         String sql = "INSERT INTO likes(user_id, film_id) VALUES (?, ?);";
-        int changedRows = jdbc.update(sql, user_id, film_id);
+        int changedRows = jdbc.update(sql, userId, filmId);
         if (changedRows > 0) {
-            log.info("Лайк успешно добавлен: user_id = " + user_id + ", film_id = " + film_id);
+            log.info("Лайк успешно добавлен: user_id = " + userId + ", film_id = " + filmId);
         } else {
-            throw new NotFoundException("Не удалось добавить лайк: user_id = " + user_id + ", film_id = " + film_id);
+            throw new NotFoundException("Не удалось добавить лайк: user_id = " + userId + ", film_id = " + filmId);
         }
     }
 
-    public void deleteLike(Long film_id, Long user_id) {
+    public void deleteLike(Long filmId, Long userId) {
         String sql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        int changedRows = jdbc.update(sql, user_id, film_id);
+        int changedRows = jdbc.update(sql, userId, filmId);
         if (changedRows > 0) {
-            log.info("Лайк успешно удалён: user_id = " + user_id + ", film_id = " + film_id);
+            log.info("Лайк успешно удалён: user_id = " + userId + ", film_id = " + filmId);
         }
     }
 

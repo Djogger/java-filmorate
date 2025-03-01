@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface MpaStorage {
     Collection<MpaRating> getAllMpaRatings();
 
-    Optional<MpaRating> getMpaRating(int mpa_id);
+    Optional<MpaRating> getMpaRating(int mpaId);
 
 }

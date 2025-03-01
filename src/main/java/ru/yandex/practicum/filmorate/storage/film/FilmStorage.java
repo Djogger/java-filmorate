@@ -9,15 +9,15 @@ import java.util.Set;
 public interface FilmStorage {
     List<Film> getAllFilms();
 
-    Set<Long> loadLikes(Long film_id);
+    Set<Long> loadLikes(Long filmId);
 
     Film addFilm(Film film);
 
     Film updateFilm(Film newFilm);
 
-    void addLike(Long film_id, Long user_id);
+    void addLike(Long filmId, Long userId);
 
-    void deleteLike(Long film_id, Long user_id);
+    void deleteLike(Long filmId, Long userId);
 
     Optional<Film> getFilmById(Long filmId);
 

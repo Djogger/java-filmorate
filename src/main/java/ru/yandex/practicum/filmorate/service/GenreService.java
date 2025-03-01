@@ -20,11 +20,11 @@ public class GenreService {
         return inMemoryGenreStorage.getAllGenres();
     }
 
-    public Genre getGenre(int genre_id) {
-        Optional<Genre> genre = inMemoryGenreStorage.getGenre(genre_id);
+    public Genre getGenre(int genreId) {
+        Optional<Genre> genre = inMemoryGenreStorage.getGenre(genreId);
 
         if (genre.isEmpty()) {
-            throw new NotFoundException("Genre с id = " + genre_id + " не найдено");
+            throw new NotFoundException("Genre с id = " + genreId + " не найдено");
         }
 
         return genre.get();

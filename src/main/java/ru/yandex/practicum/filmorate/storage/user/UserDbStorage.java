@@ -17,11 +17,7 @@ import java.util.stream.Collectors;
 @Repository
 public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private static final String GET_ALL_USERS = "SELECT * FROM users;";
-    private static final String GET_COMMON_FRIENDS = """
-            SELECT friend_id, name, login, email, birthday FROM friends AS f
-            JOIN users AS u ON f.friend_id = u.id
-            WHERE f.user_id = ?;
-            """;
+
     private static final String ADD_USER = "INSERT INTO users(name, login, email, birthday) " +
             "VALUES (?, ?, ?, ?);";
     private static final String UPDATE_USER = "UPDATE users SET name = ?, login = ?, email = ?, birthday = ? " +

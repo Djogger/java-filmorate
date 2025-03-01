@@ -19,11 +19,11 @@ public class MpaService {
         return inMemoryMpaStorage.getAllMpaRatings();
     }
 
-    public MpaRating getMpaRating(int mpa_id) {
-        Optional<MpaRating> mpaRating = inMemoryMpaStorage.getMpaRating(mpa_id);
+    public MpaRating getMpaRating(int mpaId) {
+        Optional<MpaRating> mpaRating = inMemoryMpaStorage.getMpaRating(mpaId);
 
         if (mpaRating.isEmpty()) {
-            throw new NotFoundException("MPA рейтинга с id = " + mpa_id + " не найдено");
+            throw new NotFoundException("MPA рейтинга с id = " + mpaId + " не найдено");
         }
 
         return mpaRating.get();

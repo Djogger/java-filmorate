@@ -20,10 +20,10 @@ public class MpaController {
         return mpaService.getAllMpaRatings();
     }
 
-    @GetMapping("/{mpa_id}")
+    @GetMapping("/{mpaId}")
     @ResponseStatus(HttpStatus.OK)
-    public MpaRating getMpaRating(@PathVariable int mpa_id) {
-        return mpaService.getMpaRating(mpa_id);
+    public MpaRating getMpaRating(@PathVariable int mpaId) {
+        return mpaService.getMpaRating(mpaId);
     }
 
 }

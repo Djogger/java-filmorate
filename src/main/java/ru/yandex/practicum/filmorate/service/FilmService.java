@@ -22,11 +22,11 @@ public class FilmService {
         return inMemoryFilmStorage.getAllFilms();
     }
 
-    public Film getFilm(Long film_id) {
-        Optional<Film> film = inMemoryFilmStorage.getFilmById(film_id);
+    public Film getFilm(Long filmId) {
+        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
 
         if (film.isEmpty()) {
-            throw new NotFoundException("Фильма с id = " + film_id + " не найдено");
+            throw new NotFoundException("Фильма с id = " + filmId + " не найдено");
         }
 
         return film.get();
