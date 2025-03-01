@@ -14,7 +14,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Slf4j
 @SpringBootTest(classes = FilmorateApplication.class)
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
 
 	@Autowired
 	private UserDbStorage userStorage;
