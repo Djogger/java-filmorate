@@ -35,12 +35,12 @@ public class FilmRowMapper implements RowMapper<Film> {
 
         film.setLikes(likes);
 
-        int mpa_id = rs.getInt("ratingMPA_id");
-        Optional<MpaRating> mpaRating = mpaStorage.getMpaRating(mpa_id);
+        int mpaId = rs.getInt("ratingMPA_id");
+        Optional<MpaRating> mpaRating = mpaStorage.getMpaRating(mpaId);
         if (mpaRating.isPresent()) {
             film.setMpa(mpaRating.get());
         } else {
-            throw new NotFoundException("Рейтинга с id: " + mpa_id + " не найдено");
+            throw new NotFoundException("Рейтинга с id: " + mpaId + " не найдено");
         }
 
         return film;
