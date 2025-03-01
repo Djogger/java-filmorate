@@ -28,34 +28,28 @@ public class UserService {
 
     public Collection<User> findCommonFriends(Long userId, Long friendId) {
         log.info("Находим общих друзей у пользователей с id = " + userId + " и id = " + friendId);
-
-        Set<Long> commonFriends = new HashSet<>(getUserById(userId).getFriends());
-        commonFriends.retainAll(getUserById(friendId).getFriends());
-
-        return commonFriends.stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+        return inMemoryUserStorage.findCommonFriends(userId, friendId);
     }
 
     public User addUser(User user) {
         return inMemoryUserStorage.addUser(user);
     }
 
-    public void addFriend(Long userId, Long friendId) {
+    public User addFriend(Long userId, Long friendId) {
         if (userId.equals(friendId)) {
             throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
         }
 
+        inMemoryUserStorage.getUserById(userId);
+        inMemoryUserStorage.getUserById(friendId);
+
         User user = getUserById(userId);
         user.getFriends().add(friendId);
 
-        User friend = getUserById(friendId);
-        friend.getFriends().add(userId);
+        log.info("Пользователи с id = " + userId + " добавил в друзья пользователя с id = " + friendId);
+        log.info("user: " + user.getFriends());
 
-        log.info("Пользователи с id = " + userId + " и id = " + friendId + " теперь друзья");
-
-        inMemoryUserStorage.updateUser(user);
-        inMemoryUserStorage.updateUser(friend);
+        return inMemoryUserStorage.updateUser(user);
     }
 
     public User updateUser(User newUser) {
@@ -71,6 +65,8 @@ public class UserService {
 
         log.info("Пользователи с id = " + userId + " и id = " + friendId + " больше не являются друзьями");
 
+        inMemoryUserStorage.deleteFriend(userId, friendId);
+
         inMemoryUserStorage.updateUser(user);
         inMemoryUserStorage.updateUser(friend);
 
@@ -78,13 +74,7 @@ public class UserService {
     }
 
     private User getUserById(Long userId) {
-        Optional<User> user = inMemoryUserStorage.getUserById(userId);
-
-        if (user.isEmpty()) {
-            throw new NotFoundException("Пользователя с id = " + userId + " не найдено");
-        }
-
-        return user.get();
+        return inMemoryUserStorage.getUserById(userId);
     }
 
 }

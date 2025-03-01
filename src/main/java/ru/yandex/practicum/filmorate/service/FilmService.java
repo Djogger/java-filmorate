@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -22,10 +23,20 @@ public class FilmService {
         return inMemoryFilmStorage.getAllFilms();
     }
 
+    public Film getFilm(Long film_id) {
+        Optional<Film> film = inMemoryFilmStorage.getFilmById(film_id);
+
+        if (film.isEmpty()) {
+            throw new NotFoundException("Фильма с id = " + film_id + " не найдено");
+        }
+
+        return film.get();
+    }
+
     public Collection<Film> findPopularFilms(int count) {
         log.info("Возвращаем " + count + " самых популярных фильмов");
         return inMemoryFilmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparing(Film::getLikesCount, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .sorted(Comparator.comparing(Film::getLikesCount).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -47,6 +58,7 @@ public class FilmService {
             log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
 
             inMemoryFilmStorage.updateFilm(updatedFilm);
+            inMemoryFilmStorage.addLike(filmId, userId);
 
             return updatedFilm;
         }
@@ -71,6 +83,7 @@ public class FilmService {
             log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
 
             inMemoryFilmStorage.updateFilm(updatedFilm);
+            inMemoryFilmStorage.deleteLike(filmId, userId);
 
             return updatedFilm;
         }

@@ -7,17 +7,17 @@ INSERT INTO users (name, login, email, birthday) VALUES
 INSERT INTO ratingMPA (name) VALUES
 ('G'),
 ('PG'),
-('PG_13'),
+('PG-13'),
 ('R'),
-('NC_17');
+('NC-17');
 
 INSERT INTO genres (name) VALUES
-('COMEDY'),
-('DRAMA'),
-('CARTOON'),
-('THRILLER'),
-('DOCUMENTARY'),
-('ACTION');
+('Комедия'),
+('Драма'),
+('Мультфильм'),
+('Триллер'),
+('Документальный'),
+('Боевик');
 
 -- Добавление фильмов
 INSERT INTO films (title, description, duration, ratingMPA_id, release_date) VALUES
@@ -29,7 +29,9 @@ INSERT INTO friends (user_id, friend_id) VALUES
 (1, 2), -- Alice добавила Bob в друзья
 (2, 1),
 (1, 3), -- Alice добавила Charlie в друзья
-(3, 1);
+(3, 1),
+(2, 3),
+(3, 2);
 
 -- Добавление лайков
 INSERT INTO likes (user_id, film_id) VALUES

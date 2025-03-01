@@ -8,38 +8,50 @@
 
 ```sql
 
+Table genres {
+    genre_id BIGINT [pk, increment]
+    name VARCHAR(255) [not null]
+}
+
+Table ratingMPA {
+    ratingMPA_id BIGINT [pk, increment]
+    name VARCHAR(255) [not null]
+}
+
 Table users {
-  id integer [primary key]
-  email varchar
-  login varchar
-  name varchar
-  birthday timestamp
+    id BIGINT [pk, increment]
+    name VARCHAR(255)
+    login VARCHAR(255) [not null]
+    email VARCHAR(255) [unique, not null]
+    birthday TIMESTAMP [not null]
 }
 
 Table friends {
-  id integer [primary key]
-  user_id integer
-  friend_id integer
+    id BIGINT [pk, increment]
+    user_id BIGINT [not null, ref: > users.id]
+    friend_id BIGINT [not null, ref: > users.id]
 }
 
 Table films {
-  id integer [primary key]
-  title varchar
-  description text [note: 'Description of film']
-  duration integer
-  releasedate timestamp
+    id BIGINT [pk, increment]
+    title VARCHAR(255) [not null]
+    description VARCHAR(255) [not null]
+    duration INT [not null]
+    ratingMPA_id BIGINT [ref: > ratingMPA.ratingMPA_id]
+    release_date TIMESTAMP [not null]
 }
 
 Table likes {
-  id integer [primary key]
-  film_id integer
-  user_id integer
+    id BIGINT [pk, increment]
+    user_id BIGINT [ref: > users.id]
+    film_id BIGINT [ref: > films.id]
 }
 
-Ref: friends.user_id > users.id
-Ref: friends.friend_id > users.id
-Ref: likes.film_id > films.id 
-Ref: likes.user_id > users.id 
+Table films_genre {
+    id BIGINT [pk, increment]
+    film_id BIGINT [ref: > films.id]
+    genre_id BIGINT [ref: > genres.genre_id]
+} 
 
 ```
 
@@ -52,11 +64,3 @@ Ref: likes.user_id > users.id
 2. Получение всех пользователей и их друзей:
 
 - ![Получение друзей](database/img_1.png)
-
-3. Получение друзей одного пользователя:
-
-- ![Получение друзей](database/img_2.png)
-
-4. Получение фильмов с лайками от пользователей:
-
-- ![Получение фильмов с лайками от пользователей](database/img_3.png)

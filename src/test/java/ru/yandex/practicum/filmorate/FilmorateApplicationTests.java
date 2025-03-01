@@ -1,104 +1,86 @@
 package ru.yandex.practicum.filmorate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class FilmorateApplicationTests {
+@Slf4j
+@SpringBootTest(classes = FilmorateApplication.class)
+class FilmoRateApplicationTests {
 
 	@Autowired
-	private MockMvc mockMvc;
-
-	@Autowired
-	private ObjectMapper objectMapper;
+	private UserDbStorage userStorage;
 
 	@Test
-	void shouldAddUser() throws Exception {
-		User user = User.builder()
-				.name("Nick Name")
-				.email("mail@mail.ru")
-				.login("dolore")
-				.birthday(LocalDate.of(1946, 8, 20))
-				.build();
+	public void testFindUserById() {
+		// Предполагается, что в базе данных есть пользователь с ID = 1
+		User user = userStorage.getUserById(1L);
 
-		mockMvc.perform(post("/users")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(user)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value("Nick Name"));
+		assertThat(user).isNotNull();
+		assertThat(user).hasFieldOrPropertyWithValue("id", 1L);
 	}
 
 	@Test
-	void shouldAddUserWithEmptyName() throws Exception {
-		User user = User.builder()
-				.email("something@mail.ru")
-				.login("s1mple")
-				.birthday(LocalDate.of(1946, 8, 20))
-				.build();
+	public void testGetAllUsers() {
+		Collection<User> users = userStorage.getAllUsers();
 
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(user)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value("s1mple"));
+		assertThat(users).isNotNull();
 	}
 
 	@Test
-	void shouldNotAddUserWithBadEmail() throws Exception {
-		User user = User.builder()
-				.name("Sasha")
-				.email("bad-email")
-				.login("s1mple")
-				.birthday(LocalDate.of(1946, 8, 20))
-				.build();
+	public void testFindCommonFriends() {
+		Collection<User> commonFriends = userStorage.findCommonFriends(1L, 2L);
 
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(user)))
-				.andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException));
+		assertThat(commonFriends).isNotNull();
+
+		boolean hasFriendWithId = commonFriends.stream()
+				.anyMatch(user -> {
+					log.info("Общий друг-пользователь user с id: " + user.getId() + " -- " + user.getFriends());
+					return user.getId() == 3L;
+				});
+
+		assertThat(hasFriendWithId).isTrue();
 	}
 
 	@Test
-	void shouldNotAddUserWithEmptyData() throws Exception {
-		User user = User.builder().build();
+	public void testAddUser() {
+		Collection<User> users = userStorage.getAllUsers();
+		long sizeBeforeAdding = users.size();
 
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(user)))
-				.andExpect(status().isBadRequest())
-				.andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException));
+		assertThat(users).isNotNull();
+
+		User newUser = new User(sizeBeforeAdding + 1, "blabla@mail.ru", "Djogger", "Misha", LocalDate.parse("1982-05-21"));
+		userStorage.addUser(newUser);
+
+		Collection<User> updatedUsers = userStorage.getAllUsers();
+		long sizeAfterAdding = updatedUsers.size();
+
+		log.info("Количество пользователей перед добавлением одного: " + sizeBeforeAdding + ", после: " + sizeAfterAdding);
+		log.info("Список перед добавлением: " + users + ", после добавления: " + updatedUsers);
+
+		assertThat(updatedUsers).isNotNull();
+		assertThat(sizeAfterAdding).isEqualTo(sizeBeforeAdding + 1);
 	}
 
 	@Test
-	void shouldAddFilm() throws Exception {
-		Film film = Film.builder()
-				.name("War Of the worlds")
-				.description("Cool film")
-				.duration(120)
-				.releaseDate(LocalDate.of(1946, 8, 20))
-				.build();
+	public void testUpdateUser() {
+		Collection<User> users = userStorage.getAllUsers();
+		long size = users.size();
 
-		mockMvc.perform(post("/films")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(film)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value("War Of the worlds"));
+		User newUser = new User(size, "blabla@mail.ru", "Mayger", "Tosha", LocalDate.parse("1982-05-21"));
+
+		userStorage.updateUser(newUser);
+
+		assertThat(userStorage.getUserById(newUser.getId())).hasFieldOrPropertyWithValue("login", "Mayger");
+		assertThat(userStorage.getUserById(newUser.getId())).hasFieldOrPropertyWithValue("name", "Tosha");
 	}
 
 }

@@ -1,15 +1,29 @@
 package ru.yandex.practicum.filmorate.mappers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
+@Slf4j
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
+    @Autowired
+    private MpaStorage mpaStorage;
+
+
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film();
@@ -18,9 +32,27 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setDescription(rs.getString("description"));
         film.setDuration(rs.getInt("duration"));
         film.setReleaseDate(rs.getTimestamp("release_date").toLocalDateTime().toLocalDate());
-//        String mpaRatingString = rs.getString("ratingMPA_id");
-//        MpaRating mpaRating = MpaRating.valueOf(mpaRatingString); // Преобразование строки в enum
-//        film.setMpaRating(mpaRating);
+
+        Set<Long> likes = new HashSet<>();
+//        long userId = rs.getLong("user_id");
+//        if (userId != 0) {
+//            likes.add(userId);
+//        }
+        film.setLikes(likes);
+
+        int mpa_id = rs.getInt("ratingMPA_id");
+        Optional<MpaRating> mpaRating = mpaStorage.getMpaRating(mpa_id);
+        if (mpaRating.isPresent()) {
+            film.setMpa(mpaRating.get());
+        } else {
+            throw new NotFoundException("Рейтинга с id: " + mpa_id + " не найдено");
+        }
+
+//        Set<Genre> genres = genreStorage.getFilmGenres(rs.getLong("id"));
+//        if (!genres.isEmpty()) {
+//            film.setGenres(genres);
+//        }
+
         return film;
     }
 }

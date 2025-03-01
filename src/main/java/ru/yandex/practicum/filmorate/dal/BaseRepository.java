@@ -39,34 +39,32 @@ public class BaseRepository<T> {
         jdbc.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            for (int idx = 0; idx < params.length; idx++) {
-                ps.setObject(idx + 1, params[idx]);
-            }
-            return ps;
-        }, keyHolder);
+                for (int idx = 0; idx < params.length; idx++) {
+                    ps.setObject(idx + 1, params[idx]);
+                }
+                return ps;
+            }, keyHolder);
 
-        Long id = keyHolder.getKeyAs(Long.class);
-        if (id != null) {
-            return id;
-        } else {
-            throw new InternalServerException("Не удалось сохранить данные");
-        }
+            Long id = keyHolder.getKeyAs(Long.class);
+            if (id != null) {
+                return id;
+            } else {
+                throw new InternalServerException("Не удалось сохранить данные");
+            }
     }
 
-    protected void update(String query, Object... params) {
+
+    protected int update(String query, Object... params) {
         try {
-            int rowsUpdated = jdbc.update(query, params);
-            if (rowsUpdated == 0) {
-                throw new InternalServerException("Не удалось обновить данные: ни одна строка не была затронута");
-            }
+            return jdbc.update(query, params);
         } catch (InternalServerException ex) {
             log.error("Ошибка выполнения SQL-запроса: {}", ex.getMessage());
             throw new InternalServerException("Ошибка при выполнении обновления данных");
         }
     }
 
-    protected boolean delete(String query, long id) {
-        int rowsDeleted = jdbc.update(query, id);
+    protected boolean delete(String query, Object... ids) {
+        int rowsDeleted = jdbc.update(query, ids);
         return rowsDeleted > 0;
     }
 
