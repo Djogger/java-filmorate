@@ -6,9 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.sql.ResultSet;
@@ -34,10 +32,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setReleaseDate(rs.getTimestamp("release_date").toLocalDateTime().toLocalDate());
 
         Set<Long> likes = new HashSet<>();
-//        long userId = rs.getLong("user_id");
-//        if (userId != 0) {
-//            likes.add(userId);
-//        }
+
         film.setLikes(likes);
 
         int mpa_id = rs.getInt("ratingMPA_id");
@@ -47,11 +42,6 @@ public class FilmRowMapper implements RowMapper<Film> {
         } else {
             throw new NotFoundException("Рейтинга с id: " + mpa_id + " не найдено");
         }
-
-//        Set<Genre> genres = genreStorage.getFilmGenres(rs.getLong("id"));
-//        if (!genres.isEmpty()) {
-//            film.setGenres(genres);
-//        }
 
         return film;
     }

@@ -21,7 +21,6 @@ class FilmoRateApplicationTests {
 
 	@Test
 	public void testFindUserById() {
-		// Предполагается, что в базе данных есть пользователь с ID = 1
 		User user = userStorage.getUserById(1L);
 
 		assertThat(user).isNotNull();

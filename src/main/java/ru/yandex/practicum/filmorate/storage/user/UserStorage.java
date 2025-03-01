@@ -7,8 +7,6 @@ import java.util.*;
 public interface UserStorage {
     Collection<User> getAllUsers();
 
-//    List<User> findFriend(Long userId);
-
     List<User> findCommonFriends(Long userId, Long friendId);
 
     User addUser(User user);
