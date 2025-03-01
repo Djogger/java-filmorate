@@ -23,8 +23,8 @@ public class FilmController {
 
     @GetMapping("/{film_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Film getFilm(@PathVariable Long film_id) {
-        return filmService.getFilm(film_id);
+    public Film getFilm(@PathVariable Long filmId) {
+        return filmService.getFilm(filmId);
     }
 
     @GetMapping("/popular")
