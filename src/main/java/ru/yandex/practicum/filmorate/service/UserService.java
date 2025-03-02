@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private final UserStorage inMemoryUserStorage;
+    private final UserStorage userStorage;
 
     public Collection<User> getAllUsers() {
-        return inMemoryUserStorage.getAllUsers();
+        return userStorage.getAllUsers();
     }
 
     public Collection<User> findFriends(Long userId) {
@@ -27,11 +27,11 @@ public class UserService {
 
     public Collection<User> findCommonFriends(Long userId, Long friendId) {
         log.info("Находим общих друзей у пользователей с id = " + userId + " и id = " + friendId);
-        return inMemoryUserStorage.findCommonFriends(userId, friendId);
+        return userStorage.findCommonFriends(userId, friendId);
     }
 
     public User addUser(User user) {
-        return inMemoryUserStorage.addUser(user);
+        return userStorage.addUser(user);
     }
 
     public User addFriend(Long userId, Long friendId) {
@@ -39,8 +39,8 @@ public class UserService {
             throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
         }
 
-        inMemoryUserStorage.getUserById(userId);
-        inMemoryUserStorage.getUserById(friendId);
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
 
         User user = getUserById(userId);
         user.getFriends().add(friendId);
@@ -48,11 +48,11 @@ public class UserService {
         log.info("Пользователи с id = " + userId + " добавил в друзья пользователя с id = " + friendId);
         log.info("user: " + user.getFriends());
 
-        return inMemoryUserStorage.updateUser(user);
+        return userStorage.updateUser(user);
     }
 
     public User updateUser(User newUser) {
-        return inMemoryUserStorage.updateUser(newUser);
+        return userStorage.updateUser(newUser);
     }
 
     public User deleteFriend(Long userId, Long friendId) {
@@ -64,16 +64,16 @@ public class UserService {
 
         log.info("Пользователи с id = " + userId + " и id = " + friendId + " больше не являются друзьями");
 
-        inMemoryUserStorage.deleteFriend(userId, friendId);
+        userStorage.deleteFriend(userId, friendId);
 
-        inMemoryUserStorage.updateUser(user);
-        inMemoryUserStorage.updateUser(friend);
+        userStorage.updateUser(user);
+        userStorage.updateUser(friend);
 
         return user;
     }
 
     private User getUserById(Long userId) {
-        return inMemoryUserStorage.getUserById(userId);
+        return userStorage.getUserById(userId);
     }
 
 }

@@ -9,8 +9,6 @@ import java.util.Set;
 public interface FilmStorage {
     List<Film> getAllFilms();
 
-    Set<Long> loadLikes(Long filmId);
-
     Film addFilm(Film film);
 
     Film updateFilm(Film newFilm);

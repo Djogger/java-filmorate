@@ -14,18 +14,21 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class GenreService {
-    private final GenreDbStorage inMemoryGenreStorage;
+    private final GenreDbStorage genreStorage;
 
     public Collection<Genre> getAllGenres() {
-        return inMemoryGenreStorage.getAllGenres();
+        log.info("Получаем все жанры фильмов");
+        return genreStorage.getAllGenres();
     }
 
     public Genre getGenre(int genreId) {
-        Optional<Genre> genre = inMemoryGenreStorage.getGenre(genreId);
+        Optional<Genre> genre = genreStorage.getGenre(genreId);
 
         if (genre.isEmpty()) {
-            throw new NotFoundException("Genre с id = " + genreId + " не найдено");
+            throw new NotFoundException("Жанра с id = " + genreId + " не найдено");
         }
+
+        log.info("Получаем жанр с id: " + genreId);
 
         return genre.get();
     }

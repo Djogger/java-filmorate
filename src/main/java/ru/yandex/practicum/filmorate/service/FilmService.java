@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FilmService {
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Collection<Film> getAllFilms() {
-        return inMemoryFilmStorage.getAllFilms();
+        return filmStorage.getAllFilms();
     }
 
     public Film getFilm(Long filmId) {
-        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
+        Optional<Film> film = filmStorage.getFilmById(filmId);
 
         if (film.isEmpty()) {
             throw new NotFoundException("Фильма с id = " + filmId + " не найдено");
@@ -34,20 +34,20 @@ public class FilmService {
 
     public Collection<Film> findPopularFilms(int count) {
         log.info("Возвращаем " + count + " самых популярных фильмов");
-        return inMemoryFilmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparing(Film::getLikesCount).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {
-        return inMemoryFilmStorage.addFilm(film);
+        return filmStorage.addFilm(film);
     }
 
     public Film addLike(Long filmId, Long userId) {
-        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
+        Optional<Film> film = filmStorage.getFilmById(filmId);
 
-        inMemoryUserStorage.getUserById(userId);
+        userStorage.getUserById(userId);
 
         if (film.isPresent()) {
             Film updatedFilm = film.get();
@@ -56,8 +56,8 @@ public class FilmService {
 
             log.info("Фильм с id = " + filmId + " понравился пользователю с id = " + userId);
 
-            inMemoryFilmStorage.updateFilm(updatedFilm);
-            inMemoryFilmStorage.addLike(filmId, userId);
+            filmStorage.updateFilm(updatedFilm);
+            filmStorage.addLike(filmId, userId);
 
             return updatedFilm;
         }
@@ -67,13 +67,13 @@ public class FilmService {
     }
 
     public Film updateFilm(Film newFilm) {
-        return inMemoryFilmStorage.updateFilm(newFilm);
+        return filmStorage.updateFilm(newFilm);
     }
 
     public Film deleteLike(Long filmId, Long userId) {
-        Optional<Film> film = inMemoryFilmStorage.getFilmById(filmId);
+        Optional<Film> film = filmStorage.getFilmById(filmId);
 
-        inMemoryUserStorage.getUserById(userId);
+        userStorage.getUserById(userId);
 
         if (film.isPresent()) {
             Film updatedFilm = film.get();
@@ -81,8 +81,8 @@ public class FilmService {
 
             log.info("Фильм с id = " + filmId + " лишился отметки \"Нравится\" пользователя с id = " + userId);
 
-            inMemoryFilmStorage.updateFilm(updatedFilm);
-            inMemoryFilmStorage.deleteLike(filmId, userId);
+            filmStorage.updateFilm(updatedFilm);
+            filmStorage.deleteLike(filmId, userId);
 
             return updatedFilm;
         }

@@ -13,18 +13,21 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class MpaService {
-    private final MpaDbStorage inMemoryMpaStorage;
+    private final MpaDbStorage mpaStorage;
 
     public Collection<MpaRating> getAllMpaRatings() {
-        return inMemoryMpaStorage.getAllMpaRatings();
+        log.info("Получаем все рейтинги MPA фильмов");
+        return mpaStorage.getAllMpaRatings();
     }
 
     public MpaRating getMpaRating(int mpaId) {
-        Optional<MpaRating> mpaRating = inMemoryMpaStorage.getMpaRating(mpaId);
+        Optional<MpaRating> mpaRating = mpaStorage.getMpaRating(mpaId);
 
         if (mpaRating.isEmpty()) {
             throw new NotFoundException("MPA рейтинга с id = " + mpaId + " не найдено");
         }
+
+        log.info("Получаем рейтинг MPA с id: " + mpaId);
 
         return mpaRating.get();
     }

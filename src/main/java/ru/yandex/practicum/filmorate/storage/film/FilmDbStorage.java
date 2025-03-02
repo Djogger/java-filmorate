@@ -29,7 +29,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         f.duration,
         f.release_date,
         f.ratingMPA_id
-    FROM films AS f;
+    FROM films AS f
+    JOIN ratingMPA AS rm ON rm.ratingMPA_id = f.ratingMPA_id;
 """;
 
     private static final String GET_FILM_BY_ID = """
@@ -70,26 +71,77 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public List<Film> getAllFilms() {
+        Map<Long, Set<Genre>> genres = loadGenresForAllFilms();
+        Map<Long, Set<Long>> likes = loadAllLikes();
+
         log.info("Вывод всех фильмов");
+
         return findMany(GET_ALL_FILMS).stream()
                 .peek(film -> {
-                    film.setLikes(loadLikes(film.getId()));
-                    film.setGenres(loadGenres(film.getId()));
+                    film.setLikes(likes.get(film.getId()));
+                    film.setGenres(genres.get(film.getId()));
                 })
                 .collect(Collectors.toList());
     }
 
-    public Set<Long> loadLikes(Long filmId) {
+    public Map<Long, Set<Long>> loadAllLikes() {
+        String sql = "SELECT film_id, user_id FROM likes";
+
+        log.info("Загружаем лайки для всех фильмов");
+
+        return jdbc.query(sql, rs -> {
+            Map<Long, Set<Long>> likesMap = new HashMap<>();
+
+            while (rs.next()) {
+                Long filmId = rs.getLong("film_id");
+                Long userId = rs.getLong("user_id");
+
+                likesMap.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+            }
+
+            return likesMap;
+        });
+    }
+
+    public Set<Long> loadLikesForFilm(Long filmId) {
         String sql = "SELECT user_id FROM likes WHERE film_id = ?";
+
+        log.info("Загружаем лайки для фильма с id: " + filmId);
+
         return new HashSet<>(jdbc.query(sql, new Object[]{filmId}, (rs, rowNum) -> rs.getLong("user_id")));
     }
 
-    public Set<Genre> loadGenres(Long filmId) {
-        String sql = "SELECT genre_id FROM films_genre WHERE film_id = ?";
-        Set<Integer> genresId = new HashSet<>(jdbc.query(sql, new Object[]{filmId}, (rs, rowNum) -> rs.getInt("genre_id")));
-        return genresId.stream()
-                .map(id -> genreStorage.getGenre(id).get())
-                .collect(Collectors.toSet());
+    public Map<Long, Set<Genre>> loadGenres(String sql) {
+        return jdbc.query(sql, rs -> {
+            Map<Long, Set<Genre>> genreMap = new HashMap<>();
+
+            while (rs.next()) {
+                Long filmId = rs.getLong("film_id");
+                Genre genre = new Genre(
+                        rs.getInt("genre_id"),
+                        rs.getString("name")
+                );
+
+                genreMap.computeIfAbsent(filmId, k -> new TreeSet<>()).add(genre);
+            }
+
+            return genreMap;
+        });
+    }
+
+    public Map<Long, Set<Genre>> loadGenresForAllFilms() {
+        log.info("Загружаем жанры для всех фильмов");
+        return loadGenres("SELECT fg.film_id, g.genre_id, g.name " +
+                "FROM films_genre fg " +
+                "JOIN genres g ON fg.genre_id = g.genre_id");
+    }
+
+    public Map<Long, Set<Genre>> loadGenresForFilm(long filmId) {
+        log.info("Загружаем жанры для фильма с id: " + filmId);
+        return loadGenres("SELECT fg.film_id, g.genre_id, g.name " +
+                "FROM films_genre fg " +
+                "JOIN genres g ON fg.genre_id = g.genre_id " +
+                "WHERE fg.film_id = " + filmId);
     }
 
     public Film addFilm(Film film) {
@@ -121,7 +173,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         }
 
         log.info("Был создан фильм с id: " + id + " его информация: " + getFilmById(id));
+
         film.setId(id);
+
         return film;
     }
 
@@ -181,11 +235,15 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     public Optional<Film> getFilmById(Long filmId) {
+        Map<Long, Set<Genre>> genres = loadGenresForFilm(filmId);
+        Set<Long> likes = loadLikesForFilm(filmId);
+
         log.info("Вывод фильма с id: " + filmId);
+
         return findOne(GET_FILM_BY_ID, filmId).stream()
                 .peek(film -> {
-                    film.setLikes(loadLikes(film.getId()));
-                    film.setGenres(loadGenres(film.getId()));
+                    film.setLikes(likes);
+                    film.setGenres(genres.get(film.getId()));
                 })
                 .findFirst();
     }
